@@ -15,9 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 // DATABASE CONFIGURATION - EDIT THIS SECTION
 // ==========================================
 $host = "localhost";
-$db_name = "taslim_db";      // Replace with your Plesk database name
-$username = "taslim_user";   // Replace with your Plesk database user
-$password = "your_password"; // Replace with your Plesk database password
+$db_name = "complaints_db";      // Replace with your Plesk database name
+$username = "complaints_db";     // Assuming username is the same as DB name
+$password = "Til@w19988";        // Replace with your Plesk database password
 // ==========================================
 
 // Establish database connection using PDO
