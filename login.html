@@ -120,7 +120,7 @@
             forms[0].style.display = 'none';
             document.getElementById('password-change-card').style.display = 'block';
           } else {
-            localStorage.setItem('taslim_currentUser', JSON.stringify({ username }));
+            localStorage.setItem('taslim_currentUser', JSON.stringify({ username: username, role: 'admin' }));
             window.location.href = 'dashboard';
           }
         } else {
@@ -177,7 +177,7 @@
         const data = await res.json();
         
         if (res.ok && data.success) {
-          localStorage.setItem('taslim_currentUser', JSON.stringify({ username: tempUsername }));
+          localStorage.setItem('taslim_currentUser', JSON.stringify({ username: tempUsername, role: 'admin' }));
           window.location.href = 'dashboard';
         } else {
           pwdAlert.className = "auth-alert error-theme";
