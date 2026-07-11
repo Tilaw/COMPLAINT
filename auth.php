@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 $host = "localhost";
 $db_name = "complaints_db";
-$username = "complaints_db";
+$username = "complaints";
 $password = "Til@w19988";
 
 try {
