@@ -16,7 +16,7 @@ function toggleTheme() {
 function updateThemeIcon(theme) {
   const btns = document.querySelectorAll('.theme-toggle-btn');
   btns.forEach(btn => {
-    btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
+    btn.innerHTML = theme === 'dark' ? '💡' : '🌙';
   });
 }
 

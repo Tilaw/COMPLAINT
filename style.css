@@ -1542,3 +1542,6 @@ body.rtl-layout #lang-select {
 /* Light Theme via Smart Inversion */
 html[data-theme='light'] { filter: invert(1) hue-rotate(180deg); background-color: #f3f4f6; }
 html[data-theme='light'] img { filter: invert(1) hue-rotate(180deg); }
+
+/* Prevent Emojis from getting inverted in Light Mode */
+html[data-theme='light'] .theme-toggle-btn { filter: invert(1) hue-rotate(180deg); }
