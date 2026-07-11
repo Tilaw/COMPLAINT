@@ -6,6 +6,7 @@
   <title>Taslim Alwataniah - Workers Feedback & Complaint Portal</title>
   <meta name="description" content="Secure and official channel for riders to log complaints and feedback regarding coordinators and supervisors at Taslim Alwataniah.">
   <link rel="stylesheet" href="style.css">
+  <script src="theme.js"></script>
   <script src="lang.js"></script>
   <script src="app.js"></script>
 </head>
@@ -22,6 +23,7 @@
         </div>
       </div>
       <nav class="nav-tabs" role="tablist">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-right: 1rem; color: var(--text-primary);" title="Toggle Dark/Light Mode">☀️</button>
         <select id="lang-select" class="form-input" style="padding: 0.2rem; margin-right: 1rem; width: auto; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; font-size: 0.8rem;">
           <option value="en">English</option>
           <option value="ar">العربية</option>

@@ -6,12 +6,14 @@
   <title>Admin Login - Taslim Alwataniah</title>
   <meta name="description" content="Secure authentication gate for administrators.">
   <link rel="stylesheet" href="style.css">
+  <script src="theme.js"></script>
 </head>
 <body class="auth-body">
 
   <div class="auth-container">
     <!-- Brand Logo and Intro -->
-    <div class="auth-brand">
+    <div class="auth-brand" style="position: relative;">
+      <button class="theme-toggle-btn" onclick="toggleTheme()" style="position: absolute; top: -20px; right: 0; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-primary);" title="Toggle Dark/Light Mode">☀️</button>
         <img src="img/tasslim_logo-removebg-preview.png" alt="Taslim Logo" class="brand-logo-img">
       <h1 class="auth-title">Admin Access</h1>
       <p class="auth-subtitle">Taslim Incident Management</p>

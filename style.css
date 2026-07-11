@@ -1537,3 +1537,7 @@ body.rtl-layout #lang-select {
   margin-left: 1rem;
   margin-right: 0;
 }
+
+/* Light Theme via Smart Inversion */
+html[data-theme='light'] { filter: invert(1) hue-rotate(180deg); background-color: #f3f4f6; }
+html[data-theme='light'] img { filter: invert(1) hue-rotate(180deg); }
