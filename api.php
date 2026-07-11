@@ -30,12 +30,17 @@ try {
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
-    $query = "SELECT * FROM complaints ORDER BY timestamp DESC";
-    $stmt = $db->prepare($query);
-    $stmt->execute();
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode($results);
-} 
+    try {
+        $query = "SELECT * FROM complaints ORDER BY timestamp DESC";
+        $stmt = $db->prepare($query);
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($results);
+    } catch(PDOException $e) {
+        http_response_code(500);
+        echo json_encode(array("error" => "Database error: " . $e->getMessage()));
+    }
+}
 else if ($method === 'POST') {
     // Handle multipart/form-data or json
     // Since we are using FormData in JS now, data is in $_POST
@@ -73,32 +78,36 @@ else if ($method === 'POST') {
     $audio_path = uploadFile('audio_file', $upload_dir);
 
     if($id && $worker && $details) {
-        $query = "INSERT INTO complaints SET
-                    id=:id, timestamp=NOW(), worker=:worker, riderName=:riderName, 
-                    riderPhone=:riderPhone, riderId=:riderId, platform=:platform, 
-                    details=:details, image_path=:image_path, audio_path=:audio_path";
-        
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(":id", $id);
-        $stmt->bindParam(":worker", $worker);
-        $stmt->bindParam(":riderName", $riderName);
-        $stmt->bindParam(":riderPhone", $riderPhone);
-        $stmt->bindParam(":riderId", $riderId);
-        $stmt->bindParam(":platform", $platform);
-        $stmt->bindParam(":details", $details);
-        $stmt->bindParam(":image_path", $image_path);
-        $stmt->bindParam(":audio_path", $audio_path);
-        
-        if($stmt->execute()){
-            http_response_code(200);
-            echo json_encode(array("success" => true, "id" => $id));
-        } else {
-            http_response_code(503);
-            echo json_encode(array("error" => "Unable to save complaint."));
+        try {
+            $query = "INSERT INTO complaints (id, timestamp, worker, riderName, riderPhone, riderId, platform, details, image_path, audio_path) 
+                      VALUES (:id, :timestamp, :worker, :riderName, :riderPhone, :riderId, :platform, :details, :image_path, :audio_path)";
+            
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':timestamp', $timestamp);
+            $stmt->bindParam(':worker', $worker);
+            $stmt->bindParam(':riderName', $riderName);
+            $stmt->bindParam(':riderPhone', $riderPhone);
+            $stmt->bindParam(':riderId', $riderId);
+            $stmt->bindParam(':platform', $platform);
+            $stmt->bindParam(':details', $details);
+            $stmt->bindParam(':image_path', $image_path);
+            $stmt->bindParam(':audio_path', $audio_path);
+            
+            if ($stmt->execute()) {
+                http_response_code(201);
+                echo json_encode(array("message" => "Complaint saved successfully."));
+            } else {
+                http_response_code(503);
+                echo json_encode(array("error" => "Unable to save complaint."));
+            }
+        } catch(PDOException $e) {
+            http_response_code(500);
+            echo json_encode(array("error" => "Database error: " . $e->getMessage()));
         }
     } else {
         http_response_code(400);
-        echo json_encode(array("error" => "Incomplete data."));
+        echo json_encode(array("error" => "Incomplete data. Worker and details are required."));
     }
 }
 else if ($method === 'DELETE') {

@@ -28,34 +28,38 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 if ($action === 'login') {
     if (!empty($data->username) && !empty($data->password)) {
-        $stmt = $db->prepare("SELECT password_hash, must_change_password FROM admins WHERE username = :username");
-        $stmt->bindParam(":username", $data->username);
-        $stmt->execute();
-        
-        if ($stmt->rowCount() > 0) {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            $stmt = $db->prepare("SELECT password_hash, must_change_password FROM admins WHERE username = :username");
+            $stmt->bindParam(":username", $data->username);
+            $stmt->execute();
             
-            $isValid = false;
-            // Check plain text ONLY if must_change_password is 1 (first initial login)
-            if ($row['must_change_password'] == 1 && $row['password_hash'] === $data->password) {
-                $isValid = true; 
-            } else if (password_verify($data->password, $row['password_hash'])) {
-                $isValid = true;
-            }
+            if ($stmt->rowCount() > 0) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                $isValid = false;
+                if ($row['must_change_password'] == 1 && $row['password_hash'] === $data->password) {
+                    $isValid = true; 
+                } else if (password_verify($data->password, $row['password_hash'])) {
+                    $isValid = true;
+                }
 
-            if ($isValid) {
-                if ($row['must_change_password'] == 1) {
-                    echo json_encode(array("success" => true, "status" => "REQUIRE_PASSWORD_CHANGE"));
+                if ($isValid) {
+                    if ($row['must_change_password'] == 1) {
+                        echo json_encode(array("success" => true, "status" => "REQUIRE_PASSWORD_CHANGE"));
+                    } else {
+                        echo json_encode(array("success" => true, "status" => "LOGGED_IN", "token" => bin2hex(random_bytes(16))));
+                    }
                 } else {
-                    echo json_encode(array("success" => true, "status" => "LOGGED_IN", "token" => bin2hex(random_bytes(16))));
+                    http_response_code(401);
+                    echo json_encode(array("error" => "Invalid credentials."));
                 }
             } else {
                 http_response_code(401);
                 echo json_encode(array("error" => "Invalid credentials."));
             }
-        } else {
-            http_response_code(401);
-            echo json_encode(array("error" => "Invalid credentials."));
+        } catch(PDOException $e) {
+            http_response_code(500);
+            echo json_encode(array("error" => "Database error: " . $e->getMessage()));
         }
     } else {
         http_response_code(400);
