@@ -19,7 +19,7 @@ try {
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $exception) {
     http_response_code(500);
-    echo json_encode(array("error" => "Database connection error."));
+    echo json_encode(array("error" => "Database connection error: " . $exception->getMessage()));
     exit;
 }
 
