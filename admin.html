@@ -111,9 +111,6 @@
 
           <div class="control-buttons-row">
             <div style="display: flex; gap: 0.5rem;">
-              <button class="btn btn-secondary" onclick="seedMockData()" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">
-                Seed Demo Data
-              </button>
               <button class="btn btn-secondary" onclick="exportToCSV()" style="padding: 0.6rem 1.2rem; font-size: 0.85rem;">
                 Export to CSV
               </button>
@@ -146,7 +143,7 @@
           <div id="table-empty-state" class="empty-state" style="display: none;">
             <div class="empty-state-icon">📂</div>
             <h4 class="empty-state-title">No Incident Logs Found</h4>
-            <p class="empty-state-desc">There are no complaints matching the filter criteria. Submit a new form or click "Seed Demo Data" above to simulate inputs.</p>
+            <p class="empty-state-desc" data-i18n="no_complaints_desc">There are no complaints matching the filter criteria. Submit a new form to populate logs.</p>
           </div>
         </div>
       </div>
@@ -194,6 +191,12 @@
           <div class="modal-info-label">Full Comment / Incident Description</div>
           <div class="modal-complaint-text" id="modal-complaint-text"></div>
         </div>
+        
+        <div id="modal-media-section" style="margin-top: 1rem; display: none; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+          <div class="modal-info-label" style="margin-bottom: 1rem;">Attached Evidence</div>
+          <img id="modal-image" src="" alt="Evidence Image" style="max-width: 100%; border-radius: 8px; margin-bottom: 1rem; display: none;">
+          <audio id="modal-audio" controls style="width: 100%; display: none;"></audio>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeComplaintModal()">Close Window</button>
@@ -207,5 +210,6 @@
   </footer>
 
   <script src="app.js"></script>
+<nav class="mobile-bottom-nav"><a href="index.html" class="mobile-nav-item">?? Home</a><a href="lodge.html" class="mobile-nav-item">?? Lodge</a><a href="admin.html" class="mobile-nav-item active">?? Admin</a></nav>
 </body>
 </html>

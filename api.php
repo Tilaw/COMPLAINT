@@ -1,11 +1,9 @@
 <?php
-// Prevent CORS issues if testing locally or on different domains
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json; charset=UTF-8");
 
-// Handle preflight OPTIONS requests
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit;
@@ -15,12 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 // DATABASE CONFIGURATION - EDIT THIS SECTION
 // ==========================================
 $host = "localhost";
-$db_name = "complaints_db";      // Replace with your Plesk database name
-$username = "complaints_db";     // Assuming username is the same as DB name
-$password = "Til@w19988";        // Replace with your Plesk database password
+$db_name = "complaints_db";
+$username = "complaints_db";
+$password = "Til@w19988";
 // ==========================================
 
-// Establish database connection using PDO
 try {
     $db = new PDO("mysql:host=" . $host . ";dbname=" . $db_name, $username, $password);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -32,7 +29,6 @@ try {
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-// GET: Fetch all complaints
 if ($method === 'GET') {
     $query = "SELECT * FROM complaints ORDER BY timestamp DESC";
     $stmt = $db->prepare($query);
@@ -40,29 +36,62 @@ if ($method === 'GET') {
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($results);
 } 
-// POST: Add new complaint
 else if ($method === 'POST') {
-    // Get posted JSON data
-    $data = json_decode(file_get_contents("php://input"));
+    // Handle multipart/form-data or json
+    // Since we are using FormData in JS now, data is in $_POST
     
-    if(!empty($data->id) && !empty($data->worker) && !empty($data->details)) {
+    // Create uploads directory if it doesn't exist
+    $upload_dir = 'uploads/';
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+    }
+    
+    // Helper function to handle file upload
+    function uploadFile($fileInputName, $upload_dir) {
+        if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] === UPLOAD_ERR_OK) {
+            $tmp_name = $_FILES[$fileInputName]['tmp_name'];
+            $name = basename($_FILES[$fileInputName]['name']);
+            // Sanitize file name and prepend unique ID
+            $safe_name = uniqid() . '_' . preg_replace("/[^a-zA-Z0-9.-]/", "_", $name);
+            $destination = $upload_dir . $safe_name;
+            if (move_uploaded_file($tmp_name, $destination)) {
+                return $destination;
+            }
+        }
+        return null;
+    }
+    
+    $id = isset($_POST['id']) ? $_POST['id'] : null;
+    $worker = isset($_POST['worker']) ? $_POST['worker'] : null;
+    $riderName = isset($_POST['riderName']) ? $_POST['riderName'] : null;
+    $riderPhone = isset($_POST['riderPhone']) ? $_POST['riderPhone'] : null;
+    $riderId = isset($_POST['riderId']) ? $_POST['riderId'] : null;
+    $platform = isset($_POST['platform']) ? $_POST['platform'] : null;
+    $details = isset($_POST['details']) ? $_POST['details'] : null;
+    
+    $image_path = uploadFile('image_file', $upload_dir);
+    $audio_path = uploadFile('audio_file', $upload_dir);
+
+    if($id && $worker && $details) {
         $query = "INSERT INTO complaints SET
                     id=:id, timestamp=NOW(), worker=:worker, riderName=:riderName, 
-                    riderPhone=:riderPhone, riderId=:riderId, platform=:platform, details=:details";
+                    riderPhone=:riderPhone, riderId=:riderId, platform=:platform, 
+                    details=:details, image_path=:image_path, audio_path=:audio_path";
         
         $stmt = $db->prepare($query);
-        
-        $stmt->bindParam(":id", $data->id);
-        $stmt->bindParam(":worker", $data->worker);
-        $stmt->bindParam(":riderName", $data->riderName);
-        $stmt->bindParam(":riderPhone", $data->riderPhone);
-        $stmt->bindParam(":riderId", $data->riderId);
-        $stmt->bindParam(":platform", $data->platform);
-        $stmt->bindParam(":details", $data->details);
+        $stmt->bindParam(":id", $id);
+        $stmt->bindParam(":worker", $worker);
+        $stmt->bindParam(":riderName", $riderName);
+        $stmt->bindParam(":riderPhone", $riderPhone);
+        $stmt->bindParam(":riderId", $riderId);
+        $stmt->bindParam(":platform", $platform);
+        $stmt->bindParam(":details", $details);
+        $stmt->bindParam(":image_path", $image_path);
+        $stmt->bindParam(":audio_path", $audio_path);
         
         if($stmt->execute()){
             http_response_code(200);
-            echo json_encode(array("success" => true, "id" => $data->id));
+            echo json_encode(array("success" => true, "id" => $id));
         } else {
             http_response_code(503);
             echo json_encode(array("error" => "Unable to save complaint."));
@@ -72,16 +101,29 @@ else if ($method === 'POST') {
         echo json_encode(array("error" => "Incomplete data."));
     }
 }
-// DELETE: Remove a complaint
 else if ($method === 'DELETE') {
+    // Read JSON payload for DELETE
     $data = json_decode(file_get_contents("php://input"));
     
     if(!empty($data->id)) {
+        // Find file paths to delete physical files as well
+        $sel = $db->prepare("SELECT image_path, audio_path FROM complaints WHERE id = :id");
+        $sel->bindParam(":id", $data->id);
+        $sel->execute();
+        $row = $sel->fetch(PDO::FETCH_ASSOC);
+        
         $query = "DELETE FROM complaints WHERE id = :id";
         $stmt = $db->prepare($query);
         $stmt->bindParam(":id", $data->id);
         
         if($stmt->execute()){
+            // Delete files
+            if ($row && !empty($row['image_path']) && file_exists($row['image_path'])) {
+                unlink($row['image_path']);
+            }
+            if ($row && !empty($row['audio_path']) && file_exists($row['audio_path'])) {
+                unlink($row['audio_path']);
+            }
             http_response_code(200);
             echo json_encode(array("success" => true));
         } else {

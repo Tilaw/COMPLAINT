@@ -6,6 +6,7 @@
   <title>Taslim Alwataniah - Workers Feedback & Complaint Portal</title>
   <meta name="description" content="Secure and official channel for riders to log complaints and feedback regarding coordinators and supervisors at Taslim Alwataniah.">
   <link rel="stylesheet" href="style.css">
+  <script src="lang.js"></script>
   <script src="app.js"></script>
 </head>
 <body>
@@ -21,12 +22,18 @@
         </div>
       </div>
       <nav class="nav-tabs" role="tablist">
-        <a id="tab-home" href="index.html" class="tab-btn active">
+        <select id="lang-select" class="form-input" style="padding: 0.2rem; margin-right: 1rem; width: auto; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; font-size: 0.8rem;">
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+          <option value="hi">हिंदी</option>
+          <option value="ur">اردو</option>
+        </select>
+        <button class="tab-btn active" onclick="window.location.href='index.html'">
           Home
-        </a>
-        <a id="tab-lodge" href="lodge.html" class="tab-btn">
+        </button>
+        <button class="tab-btn" onclick="window.location.href='lodge.html'">
           Lodge Complaint
-        </a>
+        </button>
         <a id="tab-admin" href="admin.html" class="tab-btn">
           Admin Dashboard
         </a>
@@ -79,5 +86,6 @@
     <p>&copy; 2026 Taslim Alwataniah Logistics. All rights reserved. Confidential Internal Feedback Tool.</p>
   </footer>
 
+<nav class="mobile-bottom-nav"><a href="index.html" class="mobile-nav-item active">?? Home</a><a href="lodge.html" class="mobile-nav-item">?? Lodge</a><a href="admin.html" class="mobile-nav-item">?? Admin</a></nav>
 </body>
 </html>

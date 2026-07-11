@@ -48,96 +48,149 @@
       </form>
     </div>
 
-    <!-- Quick Reference Help Box for Testing -->
-    <div class="credentials-tip">
-      <h3 class="tip-title">🔐 Test Account Credentials</h3>
-      <div class="tip-grid">
-        <div class="tip-row">
-          <span class="tip-badge admin-theme">Admin</span>
-          <span class="tip-email">admin@taslim.com</span>
-          <span class="tip-pass">admin123</span>
+    <!-- Change Password Form (Hidden by default) -->
+    <div class="auth-card" id="password-change-card" style="display: none;">
+      <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; text-align: center; color: var(--accent);">Action Required: Change Password</h2>
+      <p style="text-align: center; font-size: 0.85rem; margin-bottom: 1rem;">For security reasons, you must change your default password before accessing the system.</p>
+      
+      <div id="pwd-alert" class="auth-alert" style="display: none;"></div>
+
+      <form id="pwd-form" onsubmit="handlePasswordChange(event)" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="new-password">New Password *</label>
+          <input type="password" id="new-password" class="form-input" placeholder="Enter new strong password" required>
         </div>
-      </div>
+        <div class="form-group">
+          <label class="form-label" for="confirm-password">Confirm Password *</label>
+          <input type="password" id="confirm-password" class="form-input" placeholder="Repeat password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+          Update & Continue
+        </button>
+      </form>
     </div>
   </div>
 
   <!-- Script for Auth Page Logic -->
   <script>
+    let tempUsername = '';
+    let tempPassword = '';
+
     document.addEventListener("DOMContentLoaded", () => {
       // Clear current session just in case
       localStorage.removeItem('taslim_currentUser');
-      
-      // Initialize default accounts in localStorage if none exist
-      initializeDefaultAccounts();
     });
 
-    function initializeDefaultAccounts() {
-      let accounts = localStorage.getItem('taslim_accounts');
-      if (!accounts) {
-        const defaultAccounts = [
-          { email: 'admin@taslim.com', password: 'admin123', name: 'System Admin', role: 'admin' }
-        ];
-        localStorage.setItem('taslim_accounts', JSON.stringify(defaultAccounts));
-      }
-    }
-
-    function handleAuthSubmit(event) {
+    async function handleAuthSubmit(event) {
       event.preventDefault();
       
       const emailInput = document.getElementById('user-email');
       const passInput = document.getElementById('user-password');
       const authAlert = document.getElementById('auth-alert');
+      const submitBtn = document.getElementById('auth-submit-btn');
 
-      let isValid = true;
-      
-      // Validate Email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailInput.value.trim() || !emailRegex.test(emailInput.value.trim())) {
-        emailInput.classList.add('error');
-        isValid = false;
-      } else {
-        emailInput.classList.remove('error');
+      if (!emailInput.value.trim() || !passInput.value) {
+        authAlert.className = "auth-alert error-theme";
+        authAlert.textContent = "Please fill in both fields.";
+        authAlert.style.display = 'block';
+        return;
       }
 
-      // Validate Password
-      if (!passInput.value) {
-        passInput.classList.add('error');
-        isValid = false;
-      } else {
-        passInput.classList.remove('error');
-      }
-
-      if (!isValid) return;
-
-      const email = emailInput.value.trim().toLowerCase();
+      const username = emailInput.value.trim().toLowerCase();
       const password = passInput.value;
       
-      // Load accounts
-      let accounts = [];
+      submitBtn.textContent = "Authenticating...";
+      submitBtn.disabled = true;
+
       try {
-        accounts = JSON.parse(localStorage.getItem('taslim_accounts')) || [];
+        const res = await fetch('auth.php?action=login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          if (data.status === 'REQUIRE_PASSWORD_CHANGE') {
+            tempUsername = username;
+            tempPassword = password;
+            // Hide login form and show change password form
+            const forms = document.querySelectorAll('.auth-card');
+            forms[0].style.display = 'none';
+            document.getElementById('password-change-card').style.display = 'block';
+          } else {
+            localStorage.setItem('taslim_currentUser', JSON.stringify({ username }));
+            window.location.href = 'admin.html';
+          }
+        } else {
+          authAlert.className = "auth-alert error-theme";
+          authAlert.textContent = data.error || "Invalid credentials.";
+          authAlert.style.display = 'block';
+        }
       } catch (e) {
-        accounts = [];
-      }
-
-      // Sign In logic
-      const user = accounts.find(acc => acc.email.toLowerCase() === email && acc.password === password && acc.role === 'admin');
-      
-      if (user) {
-        // Log in success
-        localStorage.setItem('taslim_currentUser', JSON.stringify({
-          email: user.email,
-          name: user.name,
-          role: user.role
-        }));
-
-        // Redirect to admin dashboard
-        window.location.href = 'admin.html';
-      } else {
-        // Failure
+        console.error(e);
         authAlert.className = "auth-alert error-theme";
-        authAlert.textContent = "Invalid email or password. Please try again.";
+        authAlert.textContent = "Network error. Server unreachable.";
         authAlert.style.display = 'block';
+      } finally {
+        submitBtn.textContent = "Secure Login";
+        submitBtn.disabled = false;
+      }
+    }
+
+    async function handlePasswordChange(event) {
+      event.preventDefault();
+      const newPwd = document.getElementById('new-password').value;
+      const confirmPwd = document.getElementById('confirm-password').value;
+      const pwdAlert = document.getElementById('pwd-alert');
+      const btn = event.target.querySelector('button[type="submit"]');
+      
+      if (newPwd !== confirmPwd) {
+        pwdAlert.className = "auth-alert error-theme";
+        pwdAlert.textContent = "Passwords do not match.";
+        pwdAlert.style.display = 'block';
+        return;
+      }
+      
+      if (newPwd.length < 6) {
+        pwdAlert.className = "auth-alert error-theme";
+        pwdAlert.textContent = "Password must be at least 6 characters.";
+        pwdAlert.style.display = 'block';
+        return;
+      }
+      
+      btn.textContent = "Updating...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('auth.php?action=change_password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            username: tempUsername, 
+            old_password: tempPassword, 
+            new_password: newPwd 
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          localStorage.setItem('taslim_currentUser', JSON.stringify({ username: tempUsername }));
+          window.location.href = 'admin.html';
+        } else {
+          pwdAlert.className = "auth-alert error-theme";
+          pwdAlert.textContent = data.error || "Failed to update password.";
+          pwdAlert.style.display = 'block';
+        }
+      } catch (e) {
+        pwdAlert.className = "auth-alert error-theme";
+        pwdAlert.textContent = "Network error. Server unreachable.";
+        pwdAlert.style.display = 'block';
+      } finally {
+        btn.textContent = "Update & Continue";
+        btn.disabled = false;
       }
     }
   </script>

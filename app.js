@@ -118,28 +118,78 @@ function updateCharCounter() {
 
 // Clear and reset form fields
 function resetForm() {
-  const form = document.getElementById('complaint-form');
-  if (!form) return;
+  document.getElementById('lodge-form').reset();
   
-  form.reset();
-
-  // Reset Platform Cards styles
+  // Clear Visual selections
   const cards = document.querySelectorAll('.platform-card');
-  cards.forEach(card => card.classList.remove('selected'));
+  cards.forEach(c => c.classList.remove('selected'));
   
-  const hiddenInput = document.getElementById('selected-platform');
-  if (hiddenInput) {
-    hiddenInput.value = '';
+  const errorMsgs = document.querySelectorAll('.error-message');
+  errorMsgs.forEach(msg => msg.style.display = 'none');
+  
+  const errorInputs = document.querySelectorAll('.error');
+  errorInputs.forEach(input => input.classList.remove('error'));
+
+  updateCharCounter();
+  
+  const imgLabel = document.getElementById('image-label');
+  if(imgLabel) { imgLabel.textContent = 'No image selected'; imgLabel.style.color = 'var(--text-secondary)'; }
+  
+  const audioLabel = document.getElementById('audio-label');
+  if(audioLabel) { audioLabel.textContent = 'No voice note'; audioLabel.style.color = 'var(--text-secondary)'; }
+  
+  audioBlob = null;
+}
+
+// --- Evidence Upload & Voice Recording Logic ---
+function updateImageLabel() {
+  const input = document.getElementById('evidence-image');
+  const label = document.getElementById('image-label');
+  if (input.files && input.files[0]) {
+    label.textContent = input.files[0].name;
+    label.style.color = 'var(--accent)';
   }
+}
 
-  // Remove styling error states
-  const inputs = form.querySelectorAll('.form-input');
-  inputs.forEach(input => input.classList.remove('error'));
+let mediaRecorder = null;
+let audioChunks = [];
+let audioBlob = null;
+let isRecording = false;
 
-  // Reset char counter
-  const charCounter = document.getElementById('char-counter');
-  if (charCounter) {
-    charCounter.textContent = '0 / 1000';
+async function toggleRecording() {
+  const btn = document.getElementById('record-btn');
+  const label = document.getElementById('audio-label');
+
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      
+      mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0) audioChunks.push(e.data);
+      };
+      
+      mediaRecorder.onstop = () => {
+        audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        label.textContent = 'Voice note recorded (Ready)';
+        label.style.color = 'var(--accent)';
+      };
+
+      mediaRecorder.start();
+      isRecording = true;
+      btn.innerHTML = '🛑 Stop Recording';
+      btn.style.backgroundColor = '#e74c3c';
+      label.textContent = 'Recording in progress...';
+    } catch (err) {
+      alert('Microphone access denied or not available.');
+    }
+  } else {
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    isRecording = false;
+    btn.innerHTML = '🎤 Record Voice Note';
+    btn.style.backgroundColor = '';
   }
 }
 
@@ -229,21 +279,34 @@ async function submitComplaint(event) {
   const randomTicketNum = Math.floor(10000 + Math.random() * 90000);
   const ticketId = `TA-${randomTicketNum}`;
   
-  const newComplaint = {
-    id: ticketId,
-    worker: workerSelect.value,
-    riderName: riderName.value.trim(),
-    riderPhone: riderPhone.value.trim(),
-    riderId: riderId.value.trim(),
-    platform: selectedPlatform,
-    details: complaintText.value.trim()
-  };
+  const formData = new FormData();
+  formData.append('id', ticketId);
+  formData.append('worker', workerSelect.value);
+  formData.append('riderName', riderName.value.trim());
+  formData.append('riderPhone', riderPhone.value.trim());
+  formData.append('riderId', riderId.value.trim());
+  formData.append('platform', selectedPlatform);
+  formData.append('details', complaintText.value.trim());
+  
+  const imgInput = document.getElementById('evidence-image');
+  if (imgInput && imgInput.files[0]) {
+    formData.append('image_file', imgInput.files[0]);
+  }
+  
+  if (typeof audioBlob !== 'undefined' && audioBlob !== null) {
+    formData.append('audio_file', audioBlob, 'voice_note.webm');
+  }
+
+  const submitBtn = document.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Uploading...";
+  }
 
   try {
     const res = await fetch('api.php', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newComplaint)
+      body: formData
     });
     
     if (res.ok) {
@@ -507,6 +570,37 @@ function viewComplaintDetails(id) {
   // Full Comment
   document.getElementById('modal-complaint-text').textContent = item.details;
 
+  // Handle Media Evidence
+  const mediaSection = document.getElementById('modal-media-section');
+  const modalImg = document.getElementById('modal-image');
+  const modalAudio = document.getElementById('modal-audio');
+  
+  let hasMedia = false;
+  
+  if (item.image_path) {
+    modalImg.src = item.image_path;
+    modalImg.style.display = 'block';
+    hasMedia = true;
+  } else {
+    modalImg.style.display = 'none';
+    modalImg.src = '';
+  }
+
+  if (item.audio_path) {
+    modalAudio.src = item.audio_path;
+    modalAudio.style.display = 'block';
+    hasMedia = true;
+  } else {
+    modalAudio.style.display = 'none';
+    modalAudio.src = '';
+  }
+
+  if (hasMedia) {
+    mediaSection.style.display = 'block';
+  } else {
+    mediaSection.style.display = 'none';
+  }
+
   // Show Modal
   modal.style.display = 'flex';
 }
@@ -515,5 +609,7 @@ function closeComplaintModal() {
   const modal = document.getElementById('complaint-modal');
   if (modal) {
     modal.style.display = 'none';
+    const audio = document.getElementById('modal-audio');
+    if (audio) { audio.pause(); audio.currentTime = 0; }
   }
 }

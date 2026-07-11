@@ -19,7 +19,14 @@
           <span class="brand-subtitle">Worker Feedback Portal</span>
         </div>
       </div>
+      <!-- Navigation Tabs -->
       <nav class="nav-tabs" role="tablist">
+        <select id="lang-select" class="form-input" style="padding: 0.2rem; margin-right: 1rem; width: auto; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; font-size: 0.8rem;">
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+          <option value="hi">हिंदी</option>
+          <option value="ur">اردو</option>
+        </select>
         <a id="tab-home" href="index.html" class="tab-btn">
           Home
         </a>
@@ -129,6 +136,26 @@
             <div class="error-message">Please write a summary of your complaint.</div>
           </div>
 
+          <!-- STEP 5: Evidence Uploads -->
+          <div class="form-group">
+            <label class="form-label" data-i18n="attach_evidence">Attach Evidence (Optional)</label>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 150px;">
+                <label class="btn btn-secondary" style="width: 100%; text-align: center; cursor: pointer; padding: 0.8rem;">
+                  📷 <span data-i18n="upload_image">Upload Image</span>
+                  <input type="file" id="evidence-image" accept="image/*" style="display: none;" onchange="updateImageLabel()">
+                </label>
+                <div id="image-label" style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--text-secondary); text-align: center;">No image selected</div>
+              </div>
+              <div style="flex: 1; min-width: 150px;">
+                <button type="button" id="record-btn" class="btn btn-secondary" style="width: 100%; padding: 0.8rem;" onclick="toggleRecording()">
+                  🎤 <span data-i18n="record_voice">Record Voice Note</span>
+                </button>
+                <div id="audio-label" style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--text-secondary); text-align: center;">No voice note</div>
+              </div>
+            </div>
+          </div>
+
           <!-- Buttons -->
           <div class="form-actions">
             <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear Form</button>
@@ -144,8 +171,10 @@
   <!-- Footer -->
   <footer>
     <p>&copy; 2026 Taslim Alwataniah Logistics. All rights reserved. Confidential Internal Feedback Tool.</p>
-  </footer>
-
+  <!-- Scripts -->
+  <script src="lang.js"></script>
   <script src="app.js"></script>
+</footer>
+<nav class="mobile-bottom-nav"><a href="index.html" class="mobile-nav-item">?? Home</a><a href="lodge.html" class="mobile-nav-item active">?? Lodge</a><a href="admin.html" class="mobile-nav-item">?? Admin</a></nav>
 </body>
 </html>
