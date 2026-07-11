@@ -80,11 +80,10 @@ else if ($method === 'POST') {
     if($id && $worker && $details) {
         try {
             $query = "INSERT INTO complaints (id, timestamp, worker, riderName, riderPhone, riderId, platform, details, image_path, audio_path) 
-                      VALUES (:id, :timestamp, :worker, :riderName, :riderPhone, :riderId, :platform, :details, :image_path, :audio_path)";
+                      VALUES (:id, NOW(), :worker, :riderName, :riderPhone, :riderId, :platform, :details, :image_path, :audio_path)";
             
             $stmt = $db->prepare($query);
             $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':timestamp', $timestamp);
             $stmt->bindParam(':worker', $worker);
             $stmt->bindParam(':riderName', $riderName);
             $stmt->bindParam(':riderPhone', $riderPhone);
