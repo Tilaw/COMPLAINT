@@ -51,11 +51,11 @@ if ($action === 'login') {
                     }
                 } else {
                     http_response_code(401);
-                    echo json_encode(array("error" => "Invalid credentials."));
+                    echo json_encode(array("error" => "Password mismatch. Expected: '" . $row['password_hash'] . "' Got: '" . $data->password . "'"));
                 }
             } else {
                 http_response_code(401);
-                echo json_encode(array("error" => "Invalid credentials."));
+                echo json_encode(array("error" => "Username not found in database: '" . $data->username . "'"));
             }
         } catch(PDOException $e) {
             http_response_code(500);
