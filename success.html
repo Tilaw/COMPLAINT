@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complaint Filed Successfully - Taslim Alwataniah</title>
+  <meta name="description" content="Your complaint has been successfully recorded.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-logo">TA</div>
+        <div class="brand-text">
+          <span class="brand-title">Taslim Alwataniah</span>
+          <span class="brand-subtitle">Worker Feedback Portal</span>
+        </div>
+      </div>
+      <nav class="nav-tabs" role="tablist">
+        <a id="tab-home" href="index.html" class="tab-btn">
+          Home
+        </a>
+        <a id="tab-lodge" href="lodge.html" class="tab-btn active">
+          Lodge Complaint
+        </a>
+        <a id="tab-admin" href="admin.html" class="tab-btn">
+          Admin Dashboard
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main>
+
+    <!-- SECTION 3: Success Screen -->
+    <section id="section-success" class="app-section">
+      <div class="success-card">
+        <div class="success-icon-wrap">✓</div>
+        <h2 class="success-title">Complaint Filed Successfully</h2>
+        <p class="success-message">
+          Your complaint has been logged securely in our local record system. Management will review the case promptly.
+        </p>
+        <div class="ticket-badge">
+          <div class="ticket-label">Tracking Reference Number</div>
+          <div class="ticket-number" id="success-ticket-id">TA-XXXXX</div>
+        </div>
+        <div class="hero-cta-group">
+          <a class="btn btn-primary" href="lodge.html">Submit Another Complaint</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 Taslim Alwataniah Logistics. All rights reserved. Confidential Internal Feedback Tool.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Extract ticket ID from URL query parameters on load
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticketId = urlParams.get('id');
+      if (ticketId) {
+        document.getElementById('success-ticket-id').textContent = ticketId;
+      }
+    });
+  </script>
+</body>
+</html>

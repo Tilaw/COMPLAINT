@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Taslim Alwataniah</title>
+  <meta name="description" content="Secure authentication gate for administrators.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+
+  <div class="auth-container">
+    <!-- Brand Logo and Intro -->
+    <div class="auth-brand">
+      <div class="brand-logo">TA</div>
+      <h1 class="auth-title">Admin Access</h1>
+      <p class="auth-subtitle">Taslim Incident Management</p>
+    </div>
+
+    <!-- Glassmorphic Form Card -->
+    <div class="auth-card">
+      <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; text-align: center;">Sign In to Dashboard</h2>
+
+      <!-- Auth Error Notification banner -->
+      <div id="auth-alert" class="auth-alert" style="display: none;"></div>
+
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="user-email">Admin Email Address *</label>
+          <input type="email" id="user-email" class="form-input" placeholder="e.g. admin@taslim.com" required>
+          <div class="error-message">Please enter a valid email address.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="user-password">Password *</label>
+          <input type="password" id="user-password" class="form-input" placeholder="••••••••" required>
+          <div class="error-message">Password is required.</div>
+        </div>
+
+        <button type="submit" id="auth-submit-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+          Secure Login
+        </button>
+        
+        <div style="text-align: center; margin-top: 1rem;">
+          <a href="index.html" style="font-size: 0.85rem; color: var(--text-secondary);">Return to Home Page</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Quick Reference Help Box for Testing -->
+    <div class="credentials-tip">
+      <h3 class="tip-title">🔐 Test Account Credentials</h3>
+      <div class="tip-grid">
+        <div class="tip-row">
+          <span class="tip-badge admin-theme">Admin</span>
+          <span class="tip-email">admin@taslim.com</span>
+          <span class="tip-pass">admin123</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script for Auth Page Logic -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Clear current session just in case
+      localStorage.removeItem('taslim_currentUser');
+      
+      // Initialize default accounts in localStorage if none exist
+      initializeDefaultAccounts();
+    });
+
+    function initializeDefaultAccounts() {
+      let accounts = localStorage.getItem('taslim_accounts');
+      if (!accounts) {
+        const defaultAccounts = [
+          { email: 'admin@taslim.com', password: 'admin123', name: 'System Admin', role: 'admin' }
+        ];
+        localStorage.setItem('taslim_accounts', JSON.stringify(defaultAccounts));
+      }
+    }
+
+    function handleAuthSubmit(event) {
+      event.preventDefault();
+      
+      const emailInput = document.getElementById('user-email');
+      const passInput = document.getElementById('user-password');
+      const authAlert = document.getElementById('auth-alert');
+
+      let isValid = true;
+      
+      // Validate Email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailInput.value.trim() || !emailRegex.test(emailInput.value.trim())) {
+        emailInput.classList.add('error');
+        isValid = false;
+      } else {
+        emailInput.classList.remove('error');
+      }
+
+      // Validate Password
+      if (!passInput.value) {
+        passInput.classList.add('error');
+        isValid = false;
+      } else {
+        passInput.classList.remove('error');
+      }
+
+      if (!isValid) return;
+
+      const email = emailInput.value.trim().toLowerCase();
+      const password = passInput.value;
+      
+      // Load accounts
+      let accounts = [];
+      try {
+        accounts = JSON.parse(localStorage.getItem('taslim_accounts')) || [];
+      } catch (e) {
+        accounts = [];
+      }
+
+      // Sign In logic
+      const user = accounts.find(acc => acc.email.toLowerCase() === email && acc.password === password && acc.role === 'admin');
+      
+      if (user) {
+        // Log in success
+        localStorage.setItem('taslim_currentUser', JSON.stringify({
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }));
+
+        // Redirect to admin dashboard
+        window.location.href = 'admin.html';
+      } else {
+        // Failure
+        authAlert.className = "auth-alert error-theme";
+        authAlert.textContent = "Invalid email or password. Please try again.";
+        authAlert.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

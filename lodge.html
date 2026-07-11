@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lodge Complaint - Taslim Alwataniah</title>
+  <meta name="description" content="File an official incident report. Secure submission for Taslim Alwataniah logistics riders.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-logo">TA</div>
+        <div class="brand-text">
+          <span class="brand-title">Taslim Alwataniah</span>
+          <span class="brand-subtitle">Worker Feedback Portal</span>
+        </div>
+      </div>
+      <nav class="nav-tabs" role="tablist">
+        <a id="tab-home" href="index.html" class="tab-btn">
+          Home
+        </a>
+        <a id="tab-lodge" href="lodge.html" class="tab-btn active">
+          Lodge Complaint
+        </a>
+        <a id="tab-admin" href="admin.html" class="tab-btn">
+          Admin Dashboard
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main>
+
+    <!-- SECTION 2: Lodge Complaint Form -->
+    <section id="section-lodge" class="app-section">
+      <div class="form-container">
+        <div class="form-header">
+          <h2 class="form-title">Lodge Complaint Form</h2>
+          <p class="form-subtitle">Fill in the fields below. Fields marked with * are required.</p>
+        </div>
+
+        <form id="complaint-form" onsubmit="handleFormSubmit(event)" novalidate>
+          
+          <!-- STEP 1: Select Worker -->
+          <div class="form-group">
+            <label class="form-label" for="worker-select">Select Employee / Worker *</label>
+            <div class="select-wrapper">
+              <select id="worker-select" class="form-input" required>
+                <option value="" disabled selected>-- Choose employee --</option>
+                <option value="Hossein">Hossein</option>
+                <option value="Vishnu">Vishnu</option>
+                <option value="Reena">Reena</option>
+                <option value="Akhil">Akhil</option>
+                <option value="Murshid">Murshid</option>
+                <option value="Christian">Christian</option>
+                <option value="Hadeed">Hadeed</option>
+                <option value="Ryan">Ryan</option>
+                <option value="Ikram">Ikram</option>
+                <option value="Chacha">Chacha</option>
+                <option value="Bility">Bility</option>
+                <option value="Henry">Henry</option>
+                <option value="Richmond">Richmond</option>
+                <option value="Stephen">Stephen</option>
+                <option value="Abdul Younos">Abdul Younos</option>
+              </select>
+              <div class="error-message">Please select the worker you are complaining about.</div>
+            </div>
+          </div>
+
+          <!-- STEP 2: Rider's Own details -->
+          <div class="form-group">
+            <label class="form-label" for="rider-name">Rider Full Name *</label>
+            <input type="text" id="rider-name" class="form-input" placeholder="Enter your full name" required>
+            <div class="error-message">Please enter your name.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="rider-phone">Rider Phone Number *</label>
+            <input type="tel" id="rider-phone" class="form-input" placeholder="e.g. +971 5X XXX XXXX" required>
+            <div class="error-message">Please enter a valid phone number.</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="rider-id">Rider ID *</label>
+            <input type="text" id="rider-id" class="form-input" placeholder="Enter your Rider ID number" required>
+            <div class="error-message">Please enter your Rider ID.</div>
+          </div>
+
+          <!-- STEP 3: Platform Selection -->
+          <div class="form-group">
+            <label class="form-label">Delivery Platform *</label>
+            <div class="platform-selector">
+              
+              <label class="platform-card talabat-theme" id="platform-card-talabat">
+                <input type="radio" name="platform-choice" value="Talabat" onclick="selectPlatform('Talabat')" required>
+                <span class="platform-icon">T</span>
+                <span class="platform-name">Talabat</span>
+              </label>
+
+              <label class="platform-card noon-theme" id="platform-card-noon">
+                <input type="radio" name="platform-choice" value="Noon" onclick="selectPlatform('Noon')">
+                <span class="platform-icon">N</span>
+                <span class="platform-name">Noon</span>
+              </label>
+
+              <label class="platform-card keeta-theme" id="platform-card-keeta">
+                <input type="radio" name="platform-choice" value="Keeta" onclick="selectPlatform('Keeta')">
+                <span class="platform-icon">K</span>
+                <span class="platform-name">Keeta</span>
+              </label>
+
+            </div>
+            <input type="hidden" id="selected-platform" required>
+            <div class="error-message" id="platform-error" style="margin-top: 0.75rem;">Please select a delivery platform.</div>
+          </div>
+
+          <!-- STEP 4: Complaint Text Area -->
+          <div class="form-group">
+            <label class="form-label" for="complaint-text">Describe the Complaint *</label>
+            <div class="textarea-wrapper">
+              <textarea id="complaint-text" class="form-input" placeholder="Provide details of the incident, including dates, times, and context..." maxlength="1000" required oninput="updateCharCounter()"></textarea>
+              <span class="char-counter" id="char-counter">0 / 1000</span>
+            </div>
+            <div class="error-message">Please write a summary of your complaint.</div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear Form</button>
+            <button type="submit" class="btn btn-primary">Submit Report</button>
+          </div>
+
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 Taslim Alwataniah Logistics. All rights reserved. Confidential Internal Feedback Tool.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
