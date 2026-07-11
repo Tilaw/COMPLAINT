@@ -13,10 +13,10 @@ function initAuth() {
     currentUser = JSON.parse(sessionData);
   }
 
-  // Admin access check ONLY for admin.html
-  if (window.location.href.includes('admin.html')) {
+  // Admin access check ONLY for dashboard
+  if (window.location.href.includes('dashboard')) {
     if (!currentUser || currentUser.role !== 'admin') {
-      window.location.href = 'login.html';
+      window.location.href = 'login';
     }
   }
 }
@@ -27,7 +27,7 @@ initAuth();
 // Session Helpers
 function handleSignOut() {
   localStorage.removeItem('taslim_currentUser');
-  window.location.href = 'index.html';
+  window.location.href = 'index';
 }
 
 function adaptUIForRole() {
@@ -58,7 +58,7 @@ function adaptUIForRole() {
     // Inject Admin Login button
     const loginHtml = `
       <div class="nav-user-info" style="border: none; padding-left: 0; margin-left: auto;">
-        <a href="login.html" class="btn btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Admin Login</a>
+        <a href="login" class="btn btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Admin Login</a>
       </div>
     `;
     navContainer.insertAdjacentHTML('beforeend', loginHtml);
@@ -310,7 +310,7 @@ async function submitComplaint(event) {
     });
     
     if (res.ok) {
-      window.location.href = `success.html?id=${ticketId}`;
+      window.location.href = `success?id=${ticketId}`;
     } else {
       const errorData = await res.json();
       alert("Database error: " + (errorData.error || "Failed to save."));

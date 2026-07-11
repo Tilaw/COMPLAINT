@@ -43,7 +43,7 @@
         </button>
         
         <div style="text-align: center; margin-top: 1rem;">
-          <a href="index.html" style="font-size: 0.85rem; color: var(--text-secondary);">Return to Home Page</a>
+          <a href="index" style="font-size: 0.85rem; color: var(--text-secondary);">Return to Home Page</a>
         </div>
       </form>
     </div>
@@ -121,7 +121,7 @@
             document.getElementById('password-change-card').style.display = 'block';
           } else {
             localStorage.setItem('taslim_currentUser', JSON.stringify({ username }));
-            window.location.href = 'admin.html';
+            window.location.href = 'dashboard';
           }
         } else {
           authAlert.className = "auth-alert error-theme";
@@ -178,7 +178,7 @@
         
         if (res.ok && data.success) {
           localStorage.setItem('taslim_currentUser', JSON.stringify({ username: tempUsername }));
-          window.location.href = 'admin.html';
+          window.location.href = 'dashboard';
         } else {
           pwdAlert.className = "auth-alert error-theme";
           pwdAlert.textContent = data.error || "Failed to update password.";
